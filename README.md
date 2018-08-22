@@ -7,7 +7,7 @@ The size of log files should be less than a few GB (no plan of using BigData rel
 * Setup script (bash)
 * Frontend server (PHP, HTML, Javascript)
 * (Backend) API server (Scala? or Golang?)
-* (Backend) job server (bash, python, sqlite, docker)
+* (Backend) job/task server (bash, python, sqlite, docker)
 
 ## Setup script
 * A simple bash script to start all components.
@@ -30,12 +30,12 @@ API server communicates with mainly client's browser and frontend server. And wh
 
 * Provide multi-processing capability
 * save user input to some permanent storage (json files, no plan of using DB)
-* pass user's request to Job server (not REST API)
+* pass user's request to Task server (not REST API)
 * receive job server's result and store
 * browser requests the result directly (for simple result) or via frontend (for complicated result)
 
-## Job server
-Job server is actually bunch of bash/python scripts to run on-demand and scheduled jobs (cron and/or at).
+## Task server
+Task server is actually bunch of bash/python scripts to run on-demand and scheduled jobs (cron and/or at).
 
 Main jobs are:
 * Copy gz files from remote server to a local location regularly.
