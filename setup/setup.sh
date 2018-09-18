@@ -34,6 +34,7 @@ function f_start_caddy() {
         fi
     fi
     nohup ${_root_dir%/}/bin/caddy-`uname` -conf ${_root_dir%/}/setup/Caddyfile -root ${_root_dir%/}/web 1>${_root_dir%/}/log/caddy.out 2>${_root_dir%/}/log/caddy.err &
+    echo "$!" > ${_root_dir%/}/log/caddy.pid
 }
 
 
