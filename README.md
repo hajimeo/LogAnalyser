@@ -12,7 +12,6 @@ The size of log files should be less than a few GB (no plan of using BigData rel
 ## Setup script
 * A simple bash script to start all components.
 * How to install is basically git clone.
-* Prepare docker container
 
 ## Frontend server
 Frontend server delivers HTMLs and Javascripts to browser for the following activities:
@@ -40,4 +39,12 @@ Task server is actually bunch of bash/python scripts to run on-demand and schedu
 Main jobs are:
 * Copy gz files from remote server to a local location regularly.
 * Based on user specified path/file, find glob matching files and convert to one sqlite file
+* Prepare docker container
 * Start/stop/restart container for open source tools.
+
+## Future plans
+Adding business/software specific tasks
+
+* Create/start same version of software for reproduce
+* Import project xml
+* Generate dummy data
