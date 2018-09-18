@@ -26,7 +26,14 @@ function f_validatations() {
 }
 
 function f_start_caddy() {
-
+    local _root_dir="$(dirname "$(dirname "$BASH_SOURCE")")"
+    if [ ! -d "${_root_dir%/}/log" ]; then
+        if ! mkdir -p -m 777 ${_root_dir%/}/log; then
+            _log "ERROR" "Couldn't create ${_root_dir%/}/log"
+            return 1
+        fi
+    fi
+    nohup ${_root_dir%/}/bin/caddy-`uname` -conf ${_root_dir%/}/setup/Caddyfile -root ${_root_dir%/}/web 1>${_root_dir%/}/log/caddy.out 2>${_root_dir%/}/log/caddy.err &
 }
 
 
