@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 function usage() {
-    echo "Under construction...
+    echo "Setup and start web server
+USAGE:
+    $BASH_SOURCE
+or
+    $BASH_SOURCE -f <f_some_function>
 
 NOTE:
   Global variables start with _ and all capital.
@@ -8,8 +12,15 @@ NOTE:
 "
 }
 
+
+### Global variables ###########################################################
+_ROOT_DIR="$(dirname "$(dirname "$BASH_SOURCE")")"
+_HOST="0.0.0.0"
+_PORT="48080"
+
+
 ### Executable functions with -f ###############################################
-function f_validatations() {
+function f_validations() {
     _is_in_path "rsync" || return $?
     _is_in_path "curl" || return $?
     _is_in_path "rg" || return $?
@@ -25,16 +36,46 @@ function f_validatations() {
     fi
 }
 
+function f_gen_caddyfile() {
+    local _host="${1:-${_HOST}}"
+    local _port="${2:-${_PORT}}"
+    local _root_dir="${3:-${_ROOT_DIR}}"
+
+    if [ ! -d "${_root_dir%/}/conf" ]; then
+        if ! mkdir -p ${_root_dir%/}/conf; then
+            _log "ERROR" "Couldn't create ${_root_dir%/}/conf"
+            return 1
+        fi
+    fi
+
+    echo ${_host}':'${_port}'
+gzip
+log stdout
+errors stdout
+fastcgi / 127.0.0.1:9000 php' > ${_root_dir%/}/conf/Caddyfile
+#forwardproxy { acl { allow all } }
+}
+
 function f_start_caddy() {
-    local _root_dir="$(dirname "$(dirname "$BASH_SOURCE")")"
+    local _root_dir="${1:-${_ROOT_DIR}}"
     if [ ! -d "${_root_dir%/}/log" ]; then
         if ! mkdir -p -m 777 ${_root_dir%/}/log; then
             _log "ERROR" "Couldn't create ${_root_dir%/}/log"
             return 1
         fi
     fi
-    nohup ${_root_dir%/}/bin/caddy-`uname` -conf ${_root_dir%/}/setup/Caddyfile -root ${_root_dir%/}/web 1>${_root_dir%/}/log/caddy.out 2>${_root_dir%/}/log/caddy.err &
+
+    if [ ! -s "${_root_dir%/}/conf/Caddyfile" ]; then
+        f_gen_caddyfile || return $?
+    fi
+    nohup ${_root_dir%/}/bin/caddy-`uname` -conf ${_root_dir%/}/conf/Caddyfile -root ${_root_dir%/}/web 1>${_root_dir%/}/log/caddy.out 2>${_root_dir%/}/log/caddy.err &
     echo "$!" > ${_root_dir%/}/log/caddy.pid
+}
+
+function f_stop_caddy() {
+    local _root_dir="${1:-${_ROOT_DIR}}"
+    # TODO: should check if it's really caddy
+    kill `cat ${_root_dir%/}/log/caddy.pid`
 }
 
 
@@ -87,6 +128,6 @@ if [ "$0" = "$BASH_SOURCE" ]; then
 
     # Step 1: Make sure all necessary commands are installed.
     #         As how to install is diff by OS, not installing but just error.
-    f_validatations || exit $?
+    f_validations || exit $?
     f_start_caddy || exit $?
 fi
