@@ -36,7 +36,32 @@ function f_validations() {
     fi
 }
 
-function f_gen_caddyfile() {
+function f_web_start() {
+    local _root_dir="${1:-${_ROOT_DIR}}"
+    if [ ! -d "${_root_dir%/}/log" ]; then
+        if ! mkdir -p -m 777 ${_root_dir%/}/log; then
+            _log "ERROR" "Couldn't create ${_root_dir%/}/log"
+            return 1
+        fi
+    fi
+
+    if [ ! -s "${_root_dir%/}/conf/Caddyfile" ]; then
+        _generate_config || return $?
+    fi
+    nohup ${_root_dir%/}/bin/caddy-`uname` -conf ${_root_dir%/}/conf/Caddyfile -root ${_root_dir%/}/web/public 1>${_root_dir%/}/log/caddy.out 2>${_root_dir%/}/log/caddy.err &
+    echo "$!" > ${_root_dir%/}/log/caddy.pid
+    _log "INFO" "Started web server (`cat ${_root_dir%/}/log/caddy.pid`)"
+}
+
+function f_web_stop() {
+    local _root_dir="${1:-${_ROOT_DIR}}"
+    # TODO: should check if it's really caddy
+    kill `cat ${_root_dir%/}/log/caddy.pid`
+}
+
+
+### (supposed to be) private functions #########################################
+function _generate_config() {
     local _host="${1:-${_HOST}}"
     local _port="${2:-${_PORT}}"
     local _root_dir="${3:-${_ROOT_DIR}}"
@@ -48,6 +73,7 @@ function f_gen_caddyfile() {
         fi
     fi
 
+    # At this moment, error is also stdout
     echo ${_host}':'${_port}'
 gzip
 log stdout
@@ -56,30 +82,6 @@ fastcgi / 127.0.0.1:9000 php' > ${_root_dir%/}/conf/Caddyfile
 #forwardproxy { acl { allow all } }
 }
 
-function f_start_caddy() {
-    local _root_dir="${1:-${_ROOT_DIR}}"
-    if [ ! -d "${_root_dir%/}/log" ]; then
-        if ! mkdir -p -m 777 ${_root_dir%/}/log; then
-            _log "ERROR" "Couldn't create ${_root_dir%/}/log"
-            return 1
-        fi
-    fi
-
-    if [ ! -s "${_root_dir%/}/conf/Caddyfile" ]; then
-        f_gen_caddyfile || return $?
-    fi
-    nohup ${_root_dir%/}/bin/caddy-`uname` -conf ${_root_dir%/}/conf/Caddyfile -root ${_root_dir%/}/web 1>${_root_dir%/}/log/caddy.out 2>${_root_dir%/}/log/caddy.err &
-    echo "$!" > ${_root_dir%/}/log/caddy.pid
-}
-
-function f_stop_caddy() {
-    local _root_dir="${1:-${_ROOT_DIR}}"
-    # TODO: should check if it's really caddy
-    kill `cat ${_root_dir%/}/log/caddy.pid`
-}
-
-
-### (supposed to be) private functions #########################################
 function _is_in_path() {
     local _cmd="$1"
     local _err_msg="${2-"${_cmd} is not in PATH"}"
@@ -129,5 +131,5 @@ if [ "$0" = "$BASH_SOURCE" ]; then
     # Step 1: Make sure all necessary commands are installed.
     #         As how to install is diff by OS, not installing but just error.
     f_validations || exit $?
-    f_start_caddy || exit $?
+    f_web_start || exit $?
 fi
