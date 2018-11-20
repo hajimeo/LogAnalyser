@@ -50,7 +50,7 @@ function f_web_start() {
     fi
     nohup ${_root_dir%/}/bin/caddy-`uname` -conf ${_root_dir%/}/conf/Caddyfile -root ${_root_dir%/}/web/public 1>${_root_dir%/}/log/caddy.out 2>${_root_dir%/}/log/caddy.err &
     echo "$!" > ${_root_dir%/}/log/caddy.pid
-    _log "INFO" "Started web server (`cat ${_root_dir%/}/log/caddy.pid`)"
+    _log "INFO" "Started web server (pid:`cat ${_root_dir%/}/log/caddy.pid`)"
 }
 
 function f_web_stop() {
