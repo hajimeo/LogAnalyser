@@ -6,7 +6,7 @@ _import "_setup_host.sh"    # functions for Ubuntu OS
 _import "setup_work_env.sh" # functions for applicaitons (python, golang, java ...)
 
 
-function usage() {
+usage() {
     echo "Setup and start service for Log analysis
 USAGE:
     $BASH_SOURCE
@@ -14,7 +14,7 @@ or
     $BASH_SOURCE -f <f_some_function>
 
 NOTE:
-  Global variables start with _ and all capital.
+  Global variables start with _ and all capital letters.
   Local variables also start with _ and all small letters.
 "
 }
@@ -25,13 +25,13 @@ NOTE:
 : ${_INST_DIR:="/var/www/${_APP_USER%/}"}
 
 
-### Executable functions with -f ###############################################
+### Executable functions (start with f_) #######################################
 
 
-### (supposed to be) private functions #########################################
+### (supposed to be) private functions (start with _) ##########################
 
 
-### main() ####################################################################
+### main() #####################################################################
 if [ "$0" = "$BASH_SOURCE" ]; then
     # parsing command options
     while getopts "f:h" opts; do
