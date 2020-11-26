@@ -5,3 +5,6 @@ RUN apt-get update; \
   apt-get install -y curl sudo; \
   curl -sf --compressed "https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/script/setup.sh" -o /tmp/setup.sh; \
   bash /tmp/setup.sh
+
+  # docker build -t log-analyser .
+  # docker run -tid --expose=8888-8999 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /var/tmp/share:/var/tmp/share --privileged=true --name=log-analyser log-analyser /sbin/init

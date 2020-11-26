@@ -22,11 +22,54 @@ NOTE:
 
 ### Global variables for this script ##########################################
 : ${_APP_USER:="loganalyser"}
-: ${_INST_DIR:="/var/www/${_APP_USER%/}"}
+: ${_APP_DIR:="/var/tmp/share/${_APP_USER%/}"}
 
 
 ### Executable functions (start with f_) #######################################
+function f_setup_service() {
+    local __doc__="Setup jupyter as service on Ubuntu"
+    local _user="${1:-"${_APP_USER}"}"
+    local _dir="${2:-"${_APP_DIR}"}"
 
+    if [ ! -d "${_dir}" ]; then
+        sudo -u "${_user}" mkdir -v -p "${_dir}" || return $?
+    fi
+
+    local _svc_file="/etc/systemd/system/jupyter.service"
+    local _env=""
+    local _bin=""
+    if [ -d "/home/${_user}/.pyvenv/bin" ]; then
+        _env="
+Environment=\"PATH=/home/${_user}/.pyvenv/bin\""
+        _bin="/home/${_user}/.pyvenv/bin/"  # end with "/"
+    fi
+    cat << EOF > "${_svc_file}"
+[Unit]
+Description=Jupyter Notebook Server
+
+[Service]${_env}
+Type=simple
+PIDFile=/run/jupyter.pid
+ExecStart=${_bin}jupyter-lab --config=/home/${_user}/.jupyter/jupyter_notebook_config.py
+User=${_user}
+WorkingDirectory=${_dir}
+Restart=always
+RestartSec=10
+#KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    chmod a+x ${_svc_file}
+    systemctl daemon-reload || return $?
+    systemctl enable jupyter.service || return $?
+    systemctl start jupyter.service || return $?
+    systemctl status jupyter.service
+}
+
+function f_prepare_contents() {
+    local __doc__="Download necessary files sush as notebook files into _APP_DIR"
+}
 
 ### (supposed to be) private functions (start with _) ##########################
 
@@ -58,4 +101,7 @@ if [ "$0" = "$BASH_SOURCE" ]; then
 
     # As this is python based application, setup python for the app user
     sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python || exit $?
+
+    # Setup as the service (but if container is not started with init, won't work)
+    f_setup_service
 fi
