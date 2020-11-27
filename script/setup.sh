@@ -109,6 +109,6 @@ if [ "$0" = "$BASH_SOURCE" ]; then
 
     # Setup as the service (but if container is not started with init, won't work)
     if ! f_setup_service; then
-        _log "ERROR" "f_setup_service failed."
+        _log "WARN" "f_setup_service failed."
     fi
 fi
