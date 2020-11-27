@@ -50,7 +50,7 @@ Description=Jupyter Notebook Server
 [Service]${_env}
 Type=simple
 PIDFile=/run/jupyter.pid
-ExecStart=${_bin}jupyter-lab --config=/home/${_user}/.jupyter/jupyter_notebook_config.py
+ExecStart=${_bin}jupyter-lab --config=/home/${_user}/.jupyter/jupyter_notebook_config.py --port=8999
 User=${_user}
 WorkingDirectory=${_dir}
 Restart=always
