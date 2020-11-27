@@ -61,9 +61,9 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
     chmod a+x ${_svc_file}
-    systemctl daemon-reload || return $?
-    systemctl enable jupyter.service || return $?
-    systemctl start jupyter.service || return $?
+    systemctl daemon-reload
+    systemctl enable jupyter.service
+    systemctl start jupyter.service
     systemctl status jupyter.service
 }
 
@@ -76,11 +76,16 @@ function f_prepare_contents() {
 
 ### main() #####################################################################
 if [ "$0" = "$BASH_SOURCE" ]; then
+    _FUNCTION_EVAL=""
+    _FUNCTION_ARGS=""
     # parsing command options
-    while getopts "f:h" opts; do
+    while getopts "f:a:h" opts; do
         case $opts in
             f)
                 _FUNCTION_EVAL="$OPTARG"
+                ;;
+            a)
+                _FUNCTION_ARGS="$OPTARG"
                 ;;
             h)
                 usage | less
@@ -89,7 +94,7 @@ if [ "$0" = "$BASH_SOURCE" ]; then
     done
 
     if [[ "$_FUNCTION_EVAL" =~ ^f_ ]]; then
-        eval "$_FUNCTION_EVAL"
+        eval "$_FUNCTION_EVAL ${_FUNCTION_ARGS}"
         exit $?
     fi
 
@@ -103,5 +108,7 @@ if [ "$0" = "$BASH_SOURCE" ]; then
     sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python || exit $?
 
     # Setup as the service (but if container is not started with init, won't work)
-    f_setup_service
+    if ! f_setup_service; then
+        _log "ERROR" "f_setup_service failed."
+    fi
 fi
