@@ -10,3 +10,7 @@ docker run -tid -p 8888-8999:8888-8999 \
   -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /var/tmp/share:/var/tmp/share \
   --privileged=true --name=log-analyser log-analyser /sbin/init
 ```
+
+# TODO and under development
+Creating client script to push a zip or directory, analyse, and download the report. 
+Creating a script to generate a report which shows findings and recommendations.
