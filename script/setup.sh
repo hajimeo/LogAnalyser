@@ -40,8 +40,12 @@ function f_setup_service() {
     local _bin=""
     if [ -d "/home/${_user}/.pyvenv/bin" ]; then
         _env="
-Environment=\"PATH=/home/${_user}/.pyvenv/bin\""
+Environment=\"PATH=/home/${_user}/.pyvenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\""
         _bin="/home/${_user}/.pyvenv/bin/"  # end with "/"
+    fi
+    if [ -d "/home/${_user}/IdeaProjects/samples/python" ]; then
+        _env="${_env}
+Environment=\"PYTHONPATH=/home/${_user}/IdeaProjects/samples/python\""
     fi
     cat << EOF > "${_svc_file}"
 [Unit]
@@ -50,7 +54,7 @@ Description=Jupyter Notebook Server
 [Service]${_env}
 Type=simple
 PIDFile=/run/jupyter.pid
-ExecStart=${_bin}jupyter-lab --config=/home/${_user}/.jupyter/jupyter_notebook_config.py --port=8999
+ExecStart=${_bin}jupyter-lab --no-browser --ip=0.0.0.0 --port=8999
 User=${_user}
 WorkingDirectory=${_dir}
 Restart=always
