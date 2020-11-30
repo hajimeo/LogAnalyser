@@ -13,4 +13,5 @@ docker run -tid -p 8888-8999:8888-8999 \
 
 # TODO and under development
 Creating client script to push a zip or directory, analyse, and download the report. 
-Creating a script to generate a report which shows findings and recommendations.
+
+Creating a script to generate a report which shows findings and recommendations. 
