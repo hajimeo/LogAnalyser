@@ -5,8 +5,12 @@ RUN apt-get update; \
   apt-get install -y curl sudo; \
   curl -sf --compressed "https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/script/setup.sh" -o /tmp/setup.sh; \
   bash /tmp/setup.sh
+# To specify Nexus pypi(pip) proxy repository
 #  bash /tmp/setup.sh -a http://dh1.standalone.localdomain:8081/repository/pypi-proxy/
 
+RUN rm -rf /var/lib/apt/lists/*
+
+# HOW-TO:
 #curl -O https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/resources/Dockerfile
 #docker build -t log-analyser .
 #docker run -tid -p 8888-8999:8888-8999 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /var/tmp/share:/var/tmp/share --privileged=true --name=log-analyser log-analyser /sbin/init
