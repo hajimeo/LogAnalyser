@@ -3,12 +3,22 @@ Providing functions to convert log files to CSV or JSON, and load into SQLite (T
 The size of log files should be less than 100 MB (analysing large text is out of scope).
 
 ```
+mkdir -m 777 -p /var/tmp/share
 curl -O https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/resources/Dockerfile
 # Modify the "RUN sed ..." to use Nexus's apt-proxy repository
 docker build -t log-analyser .
 docker run -tid -p 8888-8999:8888-8999 \
+  --privileged=true --mount type=tmpfs,destination=/tmp \
   -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /var/tmp/share:/var/tmp/share \
-  --privileged=true --name=log-analyser log-analyser /sbin/init
+  --name=log-analyser log-analyser /sbin/init
+```
+
+NOTE: Sometimes 'jupyter.service' does not start somehow. In that case, please start with:  
+```
+# To check the service status
+#docker exec log-analyser systemctl status jupyter.service
+#docker exec log-analyser journalctl -u jupyter.service
+docker exec log-analyser systemctl start jupyter.service
 ```
 
 # TODO and under development
