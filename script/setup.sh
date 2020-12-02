@@ -55,7 +55,7 @@ Environment="SHELL=$(which bash)"
 ${_env}
 Type=simple
 PIDFile=/run/jupyter.pid
-ExecStart=${_bin}jupyter-lab --no-browser --ip=0.0.0.0 --port=8999
+ExecStart=${_bin}jupyter-lab --no-browser --ip=0.0.0.0 --port=8999 --notebook-dir=${_dir}
 User=${_user}
 WorkingDirectory=${_dir}
 Restart=always

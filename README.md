@@ -20,6 +20,10 @@ NOTE: Sometimes 'jupyter.service' does not start somehow. In that case, please s
 #docker exec log-analyser journalctl -u jupyter.service
 docker exec log-analyser systemctl start jupyter.service
 ```
+To force starting:
+```
+docker exec -d -u loganalyser log-analyser /home/loganalyser/.pyvenv/bin/jupyter-lab --no-browser --notebook-dir=/var/tmp/share/loganalyser --ip=0.0.0.0 --port=8999
+```
 
 # TODO and under development
 Creating client script to push a zip or directory, analyse, and download the report.  
