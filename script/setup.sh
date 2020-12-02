@@ -110,7 +110,11 @@ if [ "$0" = "$BASH_SOURCE" ]; then
     f_useradd "${_APP_USER}" || exit $?
 
     # As this is python based application, setup python for the app user
-    sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python -a "${_FUNCTION_ARGS}" || exit $?
+    if [ -n "${_FUNCTION_ARGS}" ]; then
+        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python -a "${_FUNCTION_ARGS}" || exit $?
+    else
+        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python || exit $?
+    fi
 
     # Setup as the service (but if container is not started with init, won't work)
     if ! f_setup_service; then
