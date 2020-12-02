@@ -8,4 +8,4 @@ RUN apt-get update; \
   bash /tmp/setup.sh; \
   rm -rf /var/lib/apt/lists/*
 # To specify Nexus pypi(pip) proxy repository:
-#  bash /tmp/setup.sh -a http://dh1.standalone.localdomain:8081/repository/pypi-proxy/
+#  bash /tmp/setup.sh -a http://dh1.standalone.localdomain:8081/repository/pypi-proxy/; \
