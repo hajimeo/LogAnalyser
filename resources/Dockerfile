@@ -5,7 +5,7 @@ FROM ubuntu:20.04
 RUN apt-get update; \
   apt-get install -y curl sudo; \
   curl -sf --compressed "https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/script/setup.sh" -o /tmp/setup.sh; \
-  bash /tmp/setup.sh \
+  bash /tmp/setup.sh; \
   rm -rf /var/lib/apt/lists/*
 # To specify Nexus pypi(pip) proxy repository:
 #  bash /tmp/setup.sh -a http://dh1.standalone.localdomain:8081/repository/pypi-proxy/
