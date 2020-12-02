@@ -57,7 +57,7 @@ Type=simple
 PIDFile=/run/jupyter.pid
 ExecStart=${_bin}jupyter-lab --no-browser --ip=0.0.0.0 --port=8999 --notebook-dir=${_dir}
 User=${_user}
-WorkingDirectory=${_dir}
+#WorkingDirectory=${_dir}
 Restart=always
 RestartSec=10
 #KillMode=mixed
