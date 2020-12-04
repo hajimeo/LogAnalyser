@@ -3,7 +3,7 @@ type _import &>/dev/null || _import() { [ -s /tmp/${1} ] || curl -sf --compresse
 
 _import "utils.sh"
 _import "_setup_host.sh"    # functions for Ubuntu OS
-_import "setup_work_env.sh" # functions for applicaitons (python, golang, java ...)
+_import "setup_work_env.sh" # functions for setting up tools and applicaitons (python, golang, java ...)
 
 
 usage() {
@@ -23,6 +23,8 @@ NOTE:
 ### Global variables for this script ##########################################
 : ${_APP_USER:="loganalyser"}
 : ${_APP_DIR:="/var/tmp/share/${_APP_USER%/}"}
+: ${_NXRM_APT_PROXY:=""}
+: ${_NXRM_PYPI_PROXY:=""}
 
 
 ### Executable functions (start with f_) #######################################
@@ -73,14 +75,44 @@ EOF
     systemctl status jupyter.service
 }
 
+function f_apt_proxy() {
+    local _url="${1:-"${_NXRM_APT_PROXY}"}"
+    local _src_url="${2:-"http://archive.ubuntu.com/ubuntu/"}"
+    if [ -s /etc/apt/sources.list ] && _url "${_url}" "Y"; then
+        sed -i.bak "s@${_src_url%/}/@${_url%/}/@g" /etc/apt/sources.list
+    fi
+}
+
 function f_prepare_contents() {
-    local __doc__="Download necessary files sush as notebook files into _APP_DIR"
+    local __doc__="TODO: Download necessary files sush as notebook files into _APP_DIR"
 }
 
 ### (supposed to be) private functions (start with _) ##########################
 
 
 ### main() #####################################################################
+main() {
+    f_apt_proxy "${_NXRM_APT_PROXY}"
+
+    # Install necessary commands for Ubuntu as root (or sudo)
+    f_prepare
+
+    # Create non root user for the application
+    f_useradd "${_APP_USER}" || exit $?
+
+    # As this is python based application, setup python packages for the app user
+    if [ -n "${_NXRM_PYPI_PROXY}" ]; then
+        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python -a "${_NXRM_PYPI_PROXY}" || exit $?
+    else
+        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python || exit $?
+    fi
+
+    # Setup as the service (but if container is not started with init, won't work)
+    if ! f_setup_service; then
+        _log "WARN" "f_setup_service failed, but maybe OK if this is used in docker build."
+    fi
+}
+
 if [ "$0" = "$BASH_SOURCE" ]; then
     _FUNCTION_EVAL=""
     _FUNCTION_ARGS=""
@@ -99,26 +131,11 @@ if [ "$0" = "$BASH_SOURCE" ]; then
         esac
     done
 
+    # if -f is specified, execute that functiona and exit
     if [[ "$_FUNCTION_EVAL" =~ ^f_ ]]; then
         eval "$_FUNCTION_EVAL ${_FUNCTION_ARGS}"
         exit $?
     fi
-
-    # Install necessary commands for Ubuntu as root (or sudo)
-    f_prepare
-
-    # Create non root user for the application
-    f_useradd "${_APP_USER}" || exit $?
-
-    # As this is python based application, setup python for the app user
-    if [ -n "${_FUNCTION_ARGS}" ]; then
-        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python -a "${_FUNCTION_ARGS}" || exit $?
-    else
-        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python || exit $?
-    fi
-
-    # Setup as the service (but if container is not started with init, won't work)
-    if ! f_setup_service; then
-        _log "WARN" "f_setup_service failed, but maybe OK if this is used in docker build."
-    fi
+    
+    main
 fi
