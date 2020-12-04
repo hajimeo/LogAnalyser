@@ -5,7 +5,7 @@ The size of log files should be less than 100 MB (analysing large text is out of
 ```
 mkdir -m 777 -p /var/tmp/share
 curl -O https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/resources/Dockerfile
-# Modify the "RUN sed ..." to use Nexus's apt-proxy repository
+# Modify the "ENV ..." to use Nexus's apt-proxy and pypi-proxy repositories
 docker build -t log-analyser .
 docker run -tid -p 8888-8999:8888-8999 \
   --privileged=true --mount type=tmpfs,destination=/tmp \

@@ -78,7 +78,7 @@ EOF
 function f_apt_proxy() {
     local _url="${1:-"${_NXRM_APT_PROXY}"}"
     local _src_url="${2:-"http://archive.ubuntu.com/ubuntu/"}"
-    if [ -s /etc/apt/sources.list ] && _url "${_url}" "Y"; then
+    if [ -s /etc/apt/sources.list ] && _isUrl "${_url}" "Y"; then
         sed -i.bak "s@${_src_url%/}/@${_url%/}/@g" /etc/apt/sources.list
     fi
 }
@@ -136,6 +136,6 @@ if [ "$0" = "$BASH_SOURCE" ]; then
         eval "$_FUNCTION_EVAL ${_FUNCTION_ARGS}"
         exit $?
     fi
-    
+
     main
 fi
