@@ -79,7 +79,8 @@ function f_apt_proxy() {
     local _url="${1:-"${_NXRM_APT_PROXY}"}"
     local _src_url="${2:-"http://archive.ubuntu.com/ubuntu/"}"
     if [ -s /etc/apt/sources.list ] && _isUrl "${_url}" "Y"; then
-        sed -i.bak "s@${_src_url%/}/@${_url%/}/@g" /etc/apt/sources.list
+        sed -i.bak "s@${_src_url%/}/@${_url%/}/@g" /etc/apt/sources.list || return $?
+        apt-get update || return $?
     fi
 }
 
@@ -92,20 +93,20 @@ function f_prepare_contents() {
 
 ### main() #####################################################################
 main() {
-    f_apt_proxy "${_NXRM_APT_PROXY}"
+    f_apt_proxy "${_NXRM_APT_PROXY}" || return $?
 
     # Install necessary commands for Ubuntu as root (or sudo)
-    f_prepare
+    f_prepare || return $?
 
     # Create non root user for the application
-    f_useradd "${_APP_USER}" || exit $?
+    f_useradd "${_APP_USER}" || return $?
 
     # As this is python based application, setup python packages for the app user
     if [ -n "${_NXRM_PYPI_PROXY}" ]; then
-        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python -a "${_NXRM_PYPI_PROXY}" || exit $?
+        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python -a "${_NXRM_PYPI_PROXY}"
     else
-        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python || exit $?
-    fi
+        sudo -u "${_APP_USER}" -i bash $BASH_SOURCE -f f_setup_python
+    fi || return $?
 
     # Setup as the service (but if container is not started with init, won't work)
     if ! f_setup_service; then
