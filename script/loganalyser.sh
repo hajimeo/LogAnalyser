@@ -54,13 +54,23 @@ function _logout() {
     rm -f "${_COOKIE}"
 }
 
-function _get() {
+function _get_nb() {
     local _path="${1}"
     local _jupyter_url="${2:-"${_JUPYTER_URL}"}"
 
     [ -z "${_jupyter_url}" ] && return 11
+    if [ -z "${_XSRF}" ]; then
+        _XSRF="$(_login "${_JUPYTER_PWD}" "${_jupyter_url}")" || return $?
+    fi
     if _curl "${_jupyter_url%/}/api/contents/${_path}" -X GET -H "Content-Type: application/json" > /tmp/${FUNCNAME}.tmp; then
-        cat /tmp/${FUNCNAME}.tmp | python -m json.tool
+        if [[ "${_path}" =~ \.ipynb$ ]]; then
+            python -c "import json
+nb=json.load(open('/tmp/${FUNCNAME}.tmp', 'r'))
+codes = [c['source'] for c in nb['content']['cells'] if c['cell_type'] == 'code']
+print(json.dumps(codes, indent=2))" || return $?
+        else
+            cat /tmp/${FUNCNAME}.tmp | python -m json.tool
+        fi
     else
         cat /tmp/${FUNCNAME}.tmp
     fi
@@ -97,6 +107,39 @@ EOF
     fi
 }
 
+function _kernels() {
+    local _id="${1}"
+    local _jupyter_url="${2:-"${_JUPYTER_URL}"}"
+
+    [ -z "${_jupyter_url}" ] && return 11
+    if [ -z "${_XSRF}" ]; then
+        _XSRF="$(_login "${_JUPYTER_PWD}" "${_jupyter_url}")" || return $?
+    fi
+    if _curl "${_jupyter_url%/}/api/kernels/${_id}?_xsrf=${_XSRF}" -X GET -H "Content-Type: application/json" > /tmp/${FUNCNAME}.tmp; then
+        cat /tmp/${FUNCNAME}.tmp | python -m json.tool
+    else
+        cat /tmp/${FUNCNAME}.tmp
+    fi
+}
+
+function _terminals() {
+    local _id="${1}"
+    local _jupyter_url="${2:-"${_JUPYTER_URL}"}"
+
+    [ -z "${_jupyter_url}" ] && return 11
+    if [ -z "${_XSRF}" ]; then
+        _XSRF="$(_login "${_JUPYTER_PWD}" "${_jupyter_url}")" || return $?
+    fi
+    if _curl "${_jupyter_url%/}/api/terminals/${_id}?_xsrf=${_XSRF}" -X GET -H "Content-Type: application/json" > /tmp/${FUNCNAME}.tmp; then
+        cat /tmp/${FUNCNAME}.tmp | python -m json.tool
+    else
+        cat /tmp/${FUNCNAME}.tmp
+    fi
+}
+
+
+
+### main() #####################################################################
 main() {
     _login "${_JUPYTER_PWD}" || return $?
     _upload "${_FILE}" "${_NAME}" || return $?
