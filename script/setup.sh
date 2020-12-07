@@ -11,7 +11,7 @@ usage() {
 USAGE:
     $BASH_SOURCE
 or
-    $BASH_SOURCE -f <f_some_function>
+    $BASH_SOURCE -f <f_some_function> [-a <function arguments>]
 
 NOTE:
   Global variables start with _ and all capital letters.
