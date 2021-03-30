@@ -8,7 +8,7 @@ ENV _NXRM_PYPI_PROXY="http://dh1.standalone.localdomain:8081/repository/pypi-pro
 #RUN sed -i.bak "s@http://archive.ubuntu.com/ubuntu/@${_NXRM_APT_PROXY%/}/@g" /etc/apt/sources.list
 
 RUN apt-get update; \
-  apt-get install -y sudo curl; \
+  apt-get install -y init sudo curl; \
   curl -sf --compressed "https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/script/setup.sh" -o /tmp/setup.sh; \
   bash /tmp/setup.sh; \
   rm -rf /var/lib/apt/lists/*
