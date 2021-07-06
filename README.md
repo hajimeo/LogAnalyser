@@ -8,12 +8,13 @@ curl -O https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/resources/D
 # Modify the "ENV ..." to use Nexus's apt-proxy and pypi-proxy repositories
 docker build -t log-analyser .
 docker run -tid -p 8888-8999:8888-8999 \
-  --privileged=true --mount type=tmpfs,destination=/tmp \
-  -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /var/tmp/share:/var/tmp/share \
+  --privileged=true -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+  -v /var/tmp/share:/var/tmp/share \
   --name=log-analyser log-analyser /sbin/init
 ```
+NOTE: If large memory, ' --mount type=tmpfs,destination=/tmp'
 
-NOTE: Sometimes 'jupyter.service' does not start somehow. In that case, please start with:  
+Sometimes 'jupyter.service' does not start somehow. In that case, please start with:  
 ```
 # To check the service status
 #docker exec log-analyser systemctl status jupyter.service
