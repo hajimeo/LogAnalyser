@@ -28,5 +28,5 @@ docker exec -d -u loganalyser log-analyser /home/loganalyser/.pyvenv/bin/jupyter
 
 # TODO and under development
 Creating client script to push a zip or directory, analyse, and download the report.  
-Creating a script to generate a report which shows findings and recommendations. 
-Mac + Docker Desktop may not work or unstable with privileged=true.
+Creating a script to generate a report which shows findings and recommendations.  
+Mac + Docker Desktop may not work or unstable with privileged=true.  
