@@ -1,4 +1,4 @@
-# NOTE: replace "image: log-analyser:1.0" and "host: log-analyser-k8s.standalone.localdomain"
+# NOTE: replace "image: hajimeo/log-analyser:latest" to Nexus and "host: log-analyser-k8s.standalone.localdomain" to your hostname
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,7 +24,7 @@ spec:
               value: /home/loganalyser/.pyvenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             - name: SYSTEMD_IGNORE_CHROOT
               value: "1"
-          image: log-analyser:latest
+          image: hajimeo/log-analyser:latest
           name: log-analyser
           command: ["/usr/bin/su", "-", "loganalyser", "-c" ,"/home/loganalyser/.pyvenv/bin/jupyter-lab --no-browser --ip=0.0.0.0 --port=8999 --notebook-dir=/var/tmp/share/loganalyser"]
           resources: {}
