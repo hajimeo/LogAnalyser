@@ -55,7 +55,7 @@ function _logout() {
 }
 
 function _get_nb() {
-    local _path="${1}"
+    local _path="${1}"  # usually name (-n)
     local _jupyter_url="${2:-"${_JUPYTER_URL}"}"
 
     [ -z "${_jupyter_url}" ] && return 11
@@ -143,6 +143,7 @@ function _terminals() {
 main() {
     _login "${_JUPYTER_PWD}" || return $?
     _upload "${_FILE}" "${_NAME}" || return $?
+    # TODO: execute log analyse starting python code
 }
 
 if [ "$0" = "$BASH_SOURCE" ]; then
