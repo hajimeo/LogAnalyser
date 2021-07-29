@@ -1,0 +1,90 @@
+# NOTE: replace "image: log-analyser:1.0" and "host: log-analyser-k8s.standalone.localdomain"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: log-analyser
+  name: log-analyser
+  namespace: tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-analyser
+  template:
+    metadata:
+      labels:
+        app: log-analyser
+    spec:
+      containers:
+        - env:
+            - name: PYTHONPATH
+              value: /home/loganalyser/IdeaProjects/samples/python
+            - name: PATH
+              value: /home/loganalyser/.pyvenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+            - name: SYSTEMD_IGNORE_CHROOT
+              value: "1"
+          image: log-analyser:latest
+          name: log-analyser
+          command: ["/usr/bin/su", "-", "loganalyser", "-c" ,"/home/loganalyser/.pyvenv/bin/jupyter-lab --no-browser --ip=0.0.0.0 --port=8999 --notebook-dir=/var/tmp/share/loganalyser"]
+          resources: {}
+          ports:
+            - containerPort: 8999
+          volumeMounts:
+            - mountPath: /var/tmp/share/loganalyser
+              name: log-analyser-pvc-vol
+      volumes:
+        - name: log-analyser-pvc-vol
+          persistentVolumeClaim:
+            claimName: log-analyser-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: log-analyser
+  name: log-analyser-svc
+  namespace: tools
+spec:
+  ports:
+    - port: 8999
+      protocol: TCP
+      targetPort: 8999
+  selector:
+    app: log-analyser
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: log-analyser-pvc
+  namespace: tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+  selector:
+    matchLabels:
+      app: log-analyser
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: log-analyser-ingress
+  labels:
+    name: log-analyser-ingress
+  namespace: tools
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "600m"
+    nginx.org/client-max-body-size: "600m"
+spec:
+  rules:
+    - host: log-analyser-k8s.standalone.localdomain
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: log-analyser-svc
+              servicePort: 8999
