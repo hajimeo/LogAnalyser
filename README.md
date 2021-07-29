@@ -26,6 +26,10 @@ To force starting:
 ```
 docker exec -d -u loganalyser log-analyser /home/loganalyser/.pyvenv/bin/jupyter-lab --no-browser --notebook-dir=/var/tmp/share/loganalyser --ip=0.0.0.0 --port=8999
 ```
+To reset password (in case you forgot the default password):
+```
+docker exec -u loganalyser -ti log-analyser /home/loganalyser/.pyvenv/bin/jupyter-lab password
+```
 
 # TODO and under development
 Creating client script to push a zip or directory, analyse, and download the report.  
