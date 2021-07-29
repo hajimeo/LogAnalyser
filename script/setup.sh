@@ -34,7 +34,7 @@ function f_setup_service() {
     local _dir="${2:-"${_APP_DIR}"}"
 
     if [ ! -d "${_dir}" ]; then
-        sudo -u "${_user}" mkdir -v -m 777 -p "${_dir}" || return $?
+        sudo -u "${_user}" mkdir -v -m 777 -p "${_dir}" #|| return $?
     fi
     chown -v ${_user}: "${_dir}"
 

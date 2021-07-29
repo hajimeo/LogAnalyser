@@ -8,10 +8,11 @@ curl -O https://raw.githubusercontent.com/hajimeo/LogAnalyser/master/resources/D
 # Modify the "ENV ..." to use Nexus's apt-proxy and pypi-proxy repositories
 docker build -t log-analyser .
 docker run -tid -p 8888-8999:8888-8999 \
-  --privileged=true --mount type=tmpfs,destination=/tmp \
-  -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /var/tmp/share:/var/tmp/share \
+  --privileged=true -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+  -v /var/tmp/share:/var/tmp/share \
   --name=log-analyser log-analyser /sbin/init
 ```
+NOTE: If large memory, ' --mount type=tmpfs,destination=/tmp'
 Now the jupyter lab should be listening on http://<hostname>:8999/login
 
 NOTE: Sometimes 'jupyter.service' does not start somehow. In that case, please start with:  
@@ -28,4 +29,5 @@ docker exec -d -u loganalyser log-analyser /home/loganalyser/.pyvenv/bin/jupyter
 
 # TODO and under development
 Creating client script to push a zip or directory, analyse, and download the report.  
-Creating a script to generate a report which shows findings and recommendations. 
+Creating a script to generate a report which shows findings and recommendations.  
+Mac + Docker Desktop may not work or unstable with privileged=true.  
